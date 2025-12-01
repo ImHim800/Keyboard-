@@ -1,0 +1,228 @@
+-- 🔥 DELTA MOBILE 2025 - THE ULTIMATE FINAL KEYBOARD SCRIPT 🔥
+-- Premium circular keys • Cinematic loading • Draggable toggle • Center spawn • Perfect on mobile/PC
+
+local VIM = game:GetService("VirtualInputManager")
+local TS = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+
+local sg = Instance.new("ScreenGui")
+sg.ResetOnSpawn = false
+sg.IgnoreGuiInset = true
+sg.Parent = game.CoreGui
+
+local FloatingKeys = {}
+
+-- 🔥 PREMIUM CIRCULAR KEY (SPAWNS CENTER + DRAGGABLE)
+local function CreateKey(keyName)
+    if FloatingKeys[keyName] then return end
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0,100,0,100)
+    btn.Position = UDim2.new(0.5, -50, 0.5, -50)  -- CENTER OF SCREEN
+    btn.BackgroundColor3 = Color3.fromRGB(15,20,45)
+    btn.TextColor3 = Color3.fromRGB(180,220,255)
+    btn.Text = keyName == "Space" and "SPACE" or keyName == "Enter" and "↵" or keyName == "Backspace" and "←" or keyName
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.Active = true
+    btn.Draggable = true
+    btn.Parent = sg
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1,0)
+    corner.Parent = btn
+
+    local glow = Instance.new("Frame")
+    glow.Size = UDim2.new(0,114,0,114)
+    glow.Position = UDim2.new(0.5,-57,0.5,-57)
+    glow.BackgroundColor3 = Color3.fromRGB(80,140,255)
+    glow.BackgroundTransparency = 0.7
+    glow.ZIndex = btn.ZIndex - 1
+    glow.Parent = btn
+    Instance.new("UICorner", glow).CornerRadius = UDim.new(1,0)
+
+    local kc = Enum.KeyCode[keyName] or Enum.KeyCode[keyName:upper()] or Enum.KeyCode.Unknown
+    if keyName == "Space" then kc = Enum.KeyCode.Space end
+
+    btn.MouseButton1Down:Connect(function()
+        if kc ~= Enum.KeyCode.Unknown then
+            VIM:SendKeyEvent(true,kc,false,game)
+            TS:Create(btn,TweenInfo.new(0.1),{Size=UDim2.new(0,88,0,88)}):Play()
+            TS:Create(glow,TweenInfo.new(0.1),{BackgroundTransparency=0.2}):Play()
+        end
+    end)
+    btn.MouseButton1Up:Connect(function()
+        if kc ~= Enum.KeyCode.Unknown then
+            VIM:SendKeyEvent(false,kc,false,game)
+            TS:Create(btn,TweenInfo.new(0.2,Enum.EasingStyle.Back),{Size=UDim2.new(0,100,0,100)}):Play()
+            TS:Create(glow,TweenInfo.new(0.2),{BackgroundTransparency=0.7}):Play()
+        end
+    end)
+
+    -- CENTER POP-IN ANIMATION
+    btn.Size = UDim2.new(0,0,0,0)
+    btn.BackgroundTransparency = 1
+    TS:Create(btn,TweenInfo.new(0.4,Enum.EasingStyle.Back),{Size=UDim2.new(0,100,0,100),BackgroundTransparency=0}):Play()
+
+    FloatingKeys[keyName] = btn
+end
+
+-- 🔥 CINEMATIC LOADING SCREEN
+local Loading = Instance.new("Frame")
+Loading.Size = UDim2.new(0,500,0,280)
+Loading.Position = UDim2.new(0.5,-250,0.5,-140)
+Loading.BackgroundColor3 = Color3.fromRGB(12,15,40)
+Loading.Visible = true
+Loading.Parent = sg
+local lc = Instance.new("UICorner", Loading); lc.CornerRadius = UDim.new(0,30)
+local lg = Instance.new("UIGradient", Loading)
+lg.Color = ColorSequence.new{ColorSequenceKeypoint.new(0,Color3.fromRGB(25,35,90)), ColorSequenceKeypoint.new(1,Color3.fromRGB(8,12,35))}
+local lt = Instance.new("TextLabel", Loading)
+lt.Size = UDim2.new(1,0,0.7,0); lt.Position = UDim2.new(0,0,0,40); lt.BackgroundTransparency = 1
+lt.Text = "LOADING..."; lt.TextColor3 = Color3.fromRGB(120,180,255); lt.TextScaled = true; lt.Font = Enum.Font.GothamBold
+
+task.spawn(function()
+    local dots = {"LOADING   ","LOADING.  ","LOADING.. ","LOADING..."}
+    local i = 1
+    while Loading.Visible do
+        lt.Text = dots[i]; i = (i % 4) + 1; task.wait(0.5)
+    end
+end)
+
+-- 🔥 SLIDING MENU (from top)
+local Menu = Instance.new("Frame")
+Menu.Size = UDim2.new(1,0,0,420)
+Menu.Position = UDim2.new(0,0,0,-430)
+Menu.BackgroundColor3 = Color3.fromRGB(10,12,25)
+Menu.ClipsDescendants = true
+Menu.Visible = true
+Menu.Parent = sg
+
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Size = UDim2.new(1,-20,1,-20)
+Scroll.Position = UDim2.new(0,10,0,10)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 10
+Scroll.CanvasSize = UDim2.new(0,0,0,1100)
+Scroll.Parent = Menu
+
+local y = 0
+
+-- 🔥 HUGE SPACEBAR (TOP)
+local spaceRow = Instance.new("Frame")
+spaceRow.Size = UDim2.new(1,0,0,110)
+spaceRow.Position = UDim2.new(0,0,0,y)
+spaceRow.BackgroundTransparency = 1
+spaceRow.Parent = Scroll
+y += 120
+
+local spaceBtn = Instance.new("TextButton")
+spaceBtn.Size = UDim2.new(0,720,0,90)
+spaceBtn.Position = UDim2.new(0.5,-360,0,10)
+spaceBtn.BackgroundColor3 = Color3.fromRGB(100,180,255)
+spaceBtn.Text = "SPACEBAR"
+spaceBtn.TextColor3 = Color3.new(1,1,1)
+spaceBtn.TextScaled = true
+spaceBtn.Font = Enum.Font.GothamBold
+spaceBtn.Parent = spaceRow
+Instance.new("UICorner", spaceBtn).CornerRadius = UDim.new(0,20)
+spaceBtn.MouseButton1Click:Connect(function() CreateKey("Space") end)
+
+-- 🔥 FULL KEYBOARD ROWS
+local rows = {
+    {"`","1","2","3","4","5","6","7","8","9","0","-","=","Backspace"},
+    {"Tab","Q","W","E","R","T","Y","U","I","O","P","[","]","\\"},
+    {"CapsLock","A","S","D","F","G","H","J","K","L",";","'","Enter"},
+    {"Shift","Z","X","C","V","B","N","M",",",".","/","Shift"},
+    {"Ctrl","Alt","Left","Right","Up","Down"},
+    {"F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"}
+}
+
+for _, row in ipairs(rows) do
+    local rf = Instance.new("Frame")
+    rf.Size = UDim2.new(1,0,0,100)
+    rf.Position = UDim2.new(0,0,0,y)
+    rf.BackgroundTransparency = 1
+    rf.Parent = Scroll
+    y += 110
+
+    for i, k in ipairs(row) do
+        local w = k=="Backspace" and 140 or k=="Enter" and 160 or k=="Shift" and 180 or k=="Tab" and 130 or k=="CapsLock" and 140 or 90
+        local b = Instance.new("TextButton")
+        b.Size = UDim2.new(0,w,0,85)
+        b.Position = UDim2.new(0,15 + (i-1)*(w+12),0,8)
+        b.BackgroundColor3 = Color3.fromRGB(40,45,70)
+        b.TextColor3 = Color3.new(1,1,1)
+        b.Text = k=="Enter" and "↵" or k=="Backspace" and "←" or k
+        b.TextScaled = true
+        b.Font = Enum.Font.GothamBold
+        b.Parent = rf
+        Instance.new("UICorner", b).CornerRadius = UDim.new(0,20)
+        b.MouseButton1Click:Connect(function() CreateKey(k) end)
+    end
+end
+
+-- 🔥 DRAGGABLE PREMIUM TOGGLE (appears after loading)
+local Toggle = Instance.new("TextButton")
+Toggle.Size = UDim2.new(0,180,0,56)
+Toggle.Position = UDim2.new(0,15,0,80)
+Toggle.BackgroundColor3 = Color3.fromRGB(15,20,45)
+Toggle.Text = "Show Menu"
+Toggle.TextColor3 = Color3.fromRGB(180,220,255)
+Toggle.TextScaled = true
+Toggle.Font = Enum.Font.GothamBold
+Toggle.BorderSizePixel = 0
+Toggle.ZIndex = 999
+Toggle.Active = true
+Toggle.Draggable = true
+Toggle.Visible = false  -- HIDDEN UNTIL LOADING FINISHES
+Toggle.Parent = sg
+
+local tc = Instance.new("UICorner", Toggle)
+tc.CornerRadius = UDim.new(0,28)
+local ts = Instance.new("UIStroke", Toggle)
+ts.Thickness = 3
+ts.Color = Color3.fromRGB(80,140,255)
+ts.Transparency = 0.4
+
+Toggle.MouseEnter:Connect(function()
+    TS:Create(Toggle,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,45,95)}):Play()
+end)
+Toggle.MouseLeave:Connect(function()
+    TS:Create(Toggle,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(15,20,45)}):Play()
+end)
+
+-- 🔥 MENU SLIDE LOGIC
+local menuOpen = false
+local function openMenu()
+    menuOpen = true
+    Toggle.Text = "Hide Menu"
+    TS:Create(Menu,TweenInfo.new(0.7,Enum.EasingStyle.Quint),{Position=UDim2.new(0,0,0,0)}):Play()
+end
+local function closeMenu()
+    menuOpen = false
+    Toggle.Text = "Show Menu"
+    TS:Create(Menu,TweenInfo.new(0.7,Enum.EasingStyle.Quint),{Position=UDim2.new(0,0,0,-430)}):Play()
+end
+Toggle.MouseButton1Click:Connect(function()
+    if menuOpen then closeMenu() else openMenu() end
+end)
+
+-- 🔥 EXECUTE CINEMATIC LOADING
+Loading.Size = UDim2.new(0,0,0,0)
+Loading.BackgroundTransparency = 1
+TS:Create(Loading, TweenInfo.new(0.6, Enum.EasingStyle.Back), {Size=UDim2.new(0,500,0,280), BackgroundTransparency=0}):Play()
+task.wait(2.2)
+TS:Create(Loading, TweenInfo.new(0.5), {BackgroundTransparency=1}):Play()
+task.wait(0.6)
+Loading.Visible = false
+
+-- 🔥 SHOW TOGGLE + AUTO OPEN MENU
+Toggle.Visible = true
+openMenu()
+
+print("🔥 ULTIMATE MOBILE KEYBOARD LOADED 🔥")
+print("• Keys spawn CENTER screen")
+print("• Toggle appears after loading")
+print("• Drag toggle anywhere")
+print("• Premium cinematic perfection")
